@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace zhunting.Data.Models
 {
-    public class Text
+    public class AnimalImage
     {
         public Guid Id { get; set; }
-        [MaxLength(255)]
-        public string Paragraph { get; set; }
+        public string Url { get; set; }
+        public Guid AnimalId { get; set; }
+        public Animal Animal { get; set; }
     }
 }

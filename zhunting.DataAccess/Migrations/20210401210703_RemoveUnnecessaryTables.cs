@@ -2,7 +2,7 @@
 
 namespace zhunting.DataAccess.Migrations
 {
-    public partial class ContactsAdded : Migration
+    public partial class RemoveUnnecessaryTables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

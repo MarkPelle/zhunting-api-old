@@ -5,6 +5,7 @@
         Hungary,
         Deutschland,
         Austria,
-        Slovakia
+        Slovakia,
+        Abroad
     }
 }

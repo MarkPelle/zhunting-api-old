@@ -10,8 +10,8 @@ using zhunting.DataAccess;
 namespace zhunting.DataAccess.Migrations
 {
     [DbContext(typeof(ZhuntingDbContext))]
-    [Migration("20210217161551_CompletedModels")]
-    partial class CompletedModels
+    [Migration("20210326122954_Reset")]
+    partial class Reset
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,12 +36,59 @@ namespace zhunting.DataAccess.Migrations
                     b.Property<double>("PriceInHuf")
                         .HasColumnType("float");
 
-                    b.Property<int>("Zone")
-                        .HasColumnType("int");
+                    b.Property<string>("Zone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Animals");
+                });
+
+            modelBuilder.Entity("zhunting.Data.Models.AnimalImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AnimalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnimalId")
+                        .IsUnique();
+
+                    b.ToTable("AnimalImage");
+                });
+
+            modelBuilder.Entity("zhunting.Data.Models.Contact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Contacts");
                 });
 
             modelBuilder.Entity("zhunting.Data.Models.Gallery", b =>
@@ -49,6 +96,9 @@ namespace zhunting.DataAccess.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -84,11 +134,23 @@ namespace zhunting.DataAccess.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Paragraph")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Texts");
+                });
+
+            modelBuilder.Entity("zhunting.Data.Models.AnimalImage", b =>
+                {
+                    b.HasOne("zhunting.Data.Models.Animal", "Animal")
+                        .WithOne("Image")
+                        .HasForeignKey("zhunting.Data.Models.AnimalImage", "AnimalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Animal");
                 });
 
             modelBuilder.Entity("zhunting.Data.Models.Image", b =>
@@ -100,6 +162,11 @@ namespace zhunting.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Gallery");
+                });
+
+            modelBuilder.Entity("zhunting.Data.Models.Animal", b =>
+                {
+                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("zhunting.Data.Models.Gallery", b =>

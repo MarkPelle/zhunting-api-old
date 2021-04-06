@@ -1,19 +1,19 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using zhunting.DataAccess;
 using Microsoft.EntityFrameworkCore;
-using zhunting.DataAccess.Repositories;
+using zhunting.DataAccess.Extensions;
+using Microsoft.AspNetCore.Identity;
+using zhunting.api.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using zhunting.api.Services.ServiceClasses;
+using zhunting.api.Services.Interfaces;
+using System.Text;
 
 namespace zhunting.api
 {
@@ -29,9 +29,40 @@ namespace zhunting.api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddDbContext<ZhuntingDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ZhuntingDB")));
-            services.AddTransient<IImageRepository,ImageRepository>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddAutoMapper(typeof(Startup));
+
+            services.AddAuthentication("Bearer")
+                .AddJwtBearer("Bearer", options =>
+                {
+                    options.Authority = "https://localhost:5001";
+
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateAudience = false
+                    };
+                });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin API", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("Admin API", "AdminAPI");
+                });
+            });
+
+            services.AddCors(options => options.AddDefaultPolicy(options => { options.AllowAnyOrigin(); options.AllowAnyHeader(); options.AllowAnyMethod(); }));
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+            });
+
+            services.AddDbContext<ZhuntingDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ZhuntingDev")));
+
+
+            //services.AddIdentityServer().AddInMemoryApiScopes(AuthConfig.ApiScopes).AddInMemoryClients(AuthConfig.Clients);
+            services.AddRepositories();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "zhunting.api", Version = "v1" });
@@ -48,12 +79,14 @@ namespace zhunting.api
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "zhunting.api v1"));
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
+            app.UseCors();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
+            //app.UseIdentityServer();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

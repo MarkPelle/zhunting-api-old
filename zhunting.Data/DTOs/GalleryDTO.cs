@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace zhunting.Data.Models
+namespace zhunting.Data.DTOs
 {
-    public class Gallery
+    public class GalleryDTO
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public List<Image> Images { get; set; }
         public bool IsDeleted { get; set; }
+        public string [] Images { get; set; }
     }
 }
