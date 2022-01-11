@@ -5,9 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using zhunting.Data.DTOs;
 using zhunting.Data.Models;
-using zhunting.DataAccess.Repositories;
+using zhunting.DataAccess.Repositories.Interfaces;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace zhunting.api.Controllers
 {
@@ -15,33 +14,37 @@ namespace zhunting.api.Controllers
     [ApiController]
     public class GalleryController : ControllerBase
     {
-        private readonly IImageRepository _imageRepository;
+        private readonly IGalleryRepository _galleryRepository;
 
-        public GalleryController(IImageRepository imageRepository)
+        public GalleryController(IGalleryRepository galleryRepository)
         {
-            _imageRepository = imageRepository;
+            _galleryRepository = galleryRepository;
         }
-        [HttpGet("{name}")]
-        public async Task<List<string>> Get(string name)
-        {
-            return await _imageRepository.GetGallery(name);
-        }
+
         [HttpGet]
         public async Task<List<GalleryDTO>> Get()
         {
-            return await _imageRepository.GetGalleries();
+            return await _galleryRepository.GetGalleries();
         }
-        [HttpPost]
-        public async Task<ActionResult> NewGallery(Gallery gallery)
+
+        [HttpGet("{name}")]
+        public async Task<GalleryDTO> Get(string name)
         {
-            await _imageRepository.AddGallery(gallery);
+            return await _galleryRepository.GetGallery(name);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Create(Gallery gallery)
+        {
+            await _galleryRepository.CreateGallery(gallery);
             return Ok();
         }
-        [HttpPost]
-        public async Task<ActionResult> NewImage(Image image)
+        [HttpDelete]
+        public async Task<ActionResult> Delete(Gallery gallery)
         {
-            await _imageRepository.AddImage(image);
+            await _galleryRepository.DeleteGallery(gallery);
             return Ok();
         }
+
     }
 }

@@ -10,8 +10,8 @@ using zhunting.DataAccess;
 namespace zhunting.DataAccess.Migrations
 {
     [DbContext(typeof(ZhuntingDbContext))]
-    [Migration("20210401210703_RemoveUnnecessaryTables")]
-    partial class RemoveUnnecessaryTables
+    [Migration("20210406202421_autoincrement")]
+    partial class autoincrement
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -274,7 +274,9 @@ namespace zhunting.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Order")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
@@ -304,7 +306,7 @@ namespace zhunting.DataAccess.Migrations
                     b.ToTable("Galleries");
                 });
 
-            modelBuilder.Entity("zhunting.Data.Models.Image", b =>
+            modelBuilder.Entity("zhunting.Data.Models.GalleryImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -400,10 +402,10 @@ namespace zhunting.DataAccess.Migrations
                     b.Navigation("Animal");
                 });
 
-            modelBuilder.Entity("zhunting.Data.Models.Image", b =>
+            modelBuilder.Entity("zhunting.Data.Models.GalleryImage", b =>
                 {
                     b.HasOne("zhunting.Data.Models.Gallery", "Gallery")
-                        .WithMany("Images")
+                        .WithMany("GalleryImages")
                         .HasForeignKey("GalleryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -418,7 +420,7 @@ namespace zhunting.DataAccess.Migrations
 
             modelBuilder.Entity("zhunting.Data.Models.Gallery", b =>
                 {
-                    b.Navigation("Images");
+                    b.Navigation("GalleryImages");
                 });
 #pragma warning restore 612, 618
         }

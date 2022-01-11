@@ -12,7 +12,7 @@ namespace zhunting.DataAccess
     public class ZhuntingDbContext : IdentityDbContext<IdentityUser>
     {
         public DbSet<Gallery> Galleries { get; set; }
-        public DbSet<Image> Images { get; set; }
+        public DbSet<GalleryImage> Images { get; set; }
         public DbSet<Animal> Animals { get; set; }
         public DbSet<Text> Texts { get; set; }
         public DbSet<Contact> Contacts { get; set; }
@@ -25,7 +25,7 @@ namespace zhunting.DataAccess
 
             modelBuilder
                 .Entity<Gallery>()
-                .HasMany(e => e.Images)
+                .HasMany(e => e.GalleryImages)
                 .WithOne(e => e.Gallery);
 
             modelBuilder
@@ -37,7 +37,6 @@ namespace zhunting.DataAccess
                 .Entity<Animal>()
                 .Property(e => e.Zone)
                 .HasConversion<string>();
-
         }
         public void SeedData(ModelBuilder modelBuilder)
         {
@@ -47,7 +46,7 @@ namespace zhunting.DataAccess
                 Name = "Test Gallery"
             };
 
-            var image = new Image()
+            var image = new GalleryImage()
             {
                 Id = Guid.NewGuid(),
                 Link = "https://thephotostudio.com.au/wp-content/uploads/2017/10/Emily-Ratajkowski-1.jpg",
@@ -55,7 +54,7 @@ namespace zhunting.DataAccess
             };
 
             modelBuilder.Entity<Gallery>().HasData(gallery);
-            modelBuilder.Entity<Image>().HasData(image);
+            modelBuilder.Entity<GalleryImage>().HasData(image);
         }
     }
 }

@@ -6,34 +6,33 @@ using zhunting.Data.Models;
 
 namespace zhunting.DataAccess.Repositories
 {
-    public interface  IContactRepository
+    public interface IAnimalRepository
     {
         #region CREATE
+        public Task AddAnimal(Animal animal);
+
         #endregion
         #region READ
         /// <summary>
-        /// Returns all contacts from the database.
+        /// Returns all animals from the database
         /// </summary>
         /// <returns></returns>
-        public Task<List<Contact>> GetContacts();
+        public Task<List<Animal>> GetAnimals();
+
+        public Task<List<Animal>> GetAnimals(Zone zone);
 
         /// <summary>
-        /// Returns an individual, filtered contact
+        /// Returns an individual, filtered animal
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public Task<Contact> GetContact(string name);
+        public Task<Animal> GetAnimal(string name);
 
-        /// <summary>
-        /// Returns the contact's phone number.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public Task<string> GetPhoneNumber(string name);
         #endregion
         #region UPDATE
         #endregion
         #region DELETE
+        public Task DeleteAnimal(Animal animal);
         #endregion
     }
 }

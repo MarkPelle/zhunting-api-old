@@ -7,59 +7,53 @@ using Microsoft.OpenApi.Models;
 using zhunting.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using zhunting.DataAccess.Extensions;
-using Microsoft.AspNetCore.Identity;
-using zhunting.api.Extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using zhunting.api.Services.ServiceClasses;
-using zhunting.api.Services.Interfaces;
-using System.Text;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using System.Linq;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace zhunting.api
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<ITokenService, TokenService>();
             services.AddAutoMapper(typeof(Startup));
 
-            services.AddAuthentication("Bearer")
-                .AddJwtBearer("Bearer", options =>
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
                 {
-                    options.Authority = "https://localhost:5001";
-
+                    options.Authority = "https://securetoken.google.com/zhunting-30577";
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateAudience = false
+                        ValidateIssuer = true,
+                        ValidIssuer = "https://securetoken.google.com/zhunting-30577",
+                        ValidateAudience = true,
+                        ValidAudience = "zhunting-30577",
+                        ValidateLifetime = true
                     };
                 });
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("Admin API", policy =>
-                {
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("Admin API", "AdminAPI");
-                });
-            });
 
             services.AddCors(options => options.AddDefaultPolicy(options => { options.AllowAnyOrigin(); options.AllowAnyHeader(); options.AllowAnyMethod(); }));
-            services.AddControllers().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
-            });
+            services.AddControllers(options =>
+                    options.InputFormatters.Insert(0, GetJsonPatchInputFormatter())).AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                        options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+                    });
 
             services.AddDbContext<ZhuntingDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ZhuntingDev")));
-
 
             //services.AddIdentityServer().AddInMemoryApiScopes(AuthConfig.ApiScopes).AddInMemoryClients(AuthConfig.Clients);
             services.AddRepositories();
@@ -69,7 +63,6 @@ namespace zhunting.api
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -91,6 +84,21 @@ namespace zhunting.api
             {
                 endpoints.MapControllers();
             });
+        }
+        private static NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter()
+        {
+            var builder = new ServiceCollection()
+                .AddLogging()
+                .AddMvc()
+                .AddNewtonsoftJson()
+                .Services.BuildServiceProvider();
+
+            return builder
+                .GetRequiredService<IOptions<MvcOptions>>()
+                .Value
+                .InputFormatters
+                .OfType<NewtonsoftJsonPatchInputFormatter>()
+                .First();
         }
     }
 }

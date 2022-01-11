@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using zhunting.DataAccess.Repositories;
+using zhunting.DataAccess.Repositories.Interfaces;
 
 namespace zhunting.DataAccess.Extensions
 {
@@ -11,7 +12,7 @@ namespace zhunting.DataAccess.Extensions
         public static void AddRepositories(this IServiceCollection services)
         {
             services.AddTransient<IContactRepository, ContactRepository>();
-            services.AddTransient<IImageRepository, ImageRepository>();
+            services.AddTransient<IGalleryRepository, GalleryRepository>();
             services.AddTransient<IAnimalRepository, AnimalRepository>();
 
         }

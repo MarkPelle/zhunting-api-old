@@ -20,25 +20,32 @@ namespace zhunting.api.Controllers
         {
             _animalRepository = animalRepository;
         }
-        [Authorize]
+
         [HttpGet]
         public async Task<ActionResult<List<Animal>>> Get()
         {
             return await _animalRepository.GetAnimals();
         }
-        [HttpGet("{zone}")]
+
+        [HttpGet]
+        [Route("Zone")]
         public async Task<ActionResult<List<Animal>>> Get(Zone zone)
         {
-            if (zone == Zone.Abroad)
-            {
-                return await _animalRepository.GetAnimalsByZoneAbroad();
-            }
-            return await _animalRepository.GetAnimalsByZone(zone);
+            return await _animalRepository.GetAnimals(zone);
         }
-        [HttpGet("Anim/{name}")]
+
+        [HttpGet]
+        [Route("Name")]
         public async Task<ActionResult<Animal>> Get(string name)
         {
             return await _animalRepository.GetAnimal(name);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Create(Animal animal)
+        {
+            await _animalRepository.AddAnimal(animal);
+            return Ok();
         }
     }
 }

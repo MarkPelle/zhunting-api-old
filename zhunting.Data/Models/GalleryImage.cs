@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace zhunting.Data.Models
 {
-    public class Image
+    public class GalleryImage
     {
         public Guid Id { get; set; }
         public Guid GalleryId { get; set; }

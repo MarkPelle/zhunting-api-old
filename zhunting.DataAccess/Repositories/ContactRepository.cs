@@ -15,19 +15,44 @@ namespace zhunting.DataAccess.Repositories
         {
             _context = context;
         }
+
+        #region CREATE
+        public async Task CreateContact(Contact contact)
+        {
+            _context.Add(contact);
+            await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region READ
         public async Task<List<Contact>> GetContacts()
         {
-            return await _context.Contacts.OrderBy(e => e.Order).ToListAsync();
+            return await _context.Contacts.OrderByDescending(e => e.Title).ToListAsync();
         }
 
-        public async Task<string> GetPhoneNumber(string name)
-        {
-            var contact = await _context.Contacts.SingleAsync(s => s.Name == name);
-            return contact.PhoneNumber;
-        }
         public async Task<Contact> GetContact(string name)
         {
             return await _context.Contacts.SingleAsync(s => s.Name == name);
         }
+        public async Task<Contact> GetContact(Guid Id)
+        {
+            return await _context.Contacts.SingleAsync(s => s.Id == Id);
+        }
+        #endregion
+        #region UPDATE
+        public async Task UpdateContact(Contact contact)
+        {
+            _context.Entry<Contact>(contact).State = EntityState.Modified;
+            _context.Update(contact);
+            await _context.SaveChangesAsync();
+        }
+        #endregion
+        #region DELETE
+        public async Task DeleteContact(Contact contact)
+        {
+            _context.Remove(contact);
+            await _context.SaveChangesAsync();
+        }
+        #endregion
     }
 }
